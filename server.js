@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const { authenticateToken } = require("./src/middleware/authenticateToken");
 
 dotenv.config();
 
@@ -25,22 +26,28 @@ app.post("/login", (req, res) => {
   }
 });
 
-app.get("/protected", (req, res) => {
-  const token = req.header("Authorization")?.split(" ")[1];
-  console.log("Received Token:", token);
+// app.get("/protected", (req, res) => {
+//   const token = req.header("Authorization")?.split(" ")[1];
+//   console.log("Received Token:", token);
 
-  if (!token) {
-    return res.status(401).send("Access Denied");
-  }
+//   if (!token) {
+//     return res.status(401).send("Access Denied");
+//   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    res.json({ message: "Protected content", user: decoded });
-  } catch (err) {
-    console.error("JWT Error:", err.message);
-    res.status(400).send("Invalid Token");
-  }
-});
+  
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+//     res.json({ message: "Protected content", user: decoded });
+//   } catch (err) {
+//     console.error("JWT Error:", err.message);
+//     res.status(400).send("Invalid Token");
+//   }
+// });
+
+app.get("/protected",authenticateToken, (req,res)=>{
+    res.json({ message: "Protected content", user: req.decoded });
+  })
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
